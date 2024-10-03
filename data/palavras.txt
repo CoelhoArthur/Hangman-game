@@ -1,0 +1,4 @@
+facil: ["Java", "Prolog", "Haskell"].
+medio: ["Computador", "Teclado", "Monitor"].
+dificil: ["Microscopio", "Processador", "Anticonstitucional"].
+
