@@ -1,55 +1,156 @@
-% Função para jogar o jogo da forca
-play_game(User, [Word1, Word2, Word3], Wins, Losses) :-
-    write('Vamos começar o jogo!\n'),
-    write('Você tem 3 palavras para adivinhar.\n'),
-    play_round(User, Word1, Result1),
-    play_round(User, Word2, Result2),
-    play_round(User, Word3, Result3),
-    update_results(User, [Result1, Result2, Result3]).
+:- module(game_logic, [jogar/0]).
 
-% Jogar uma rodada
-play_round(User, Word, Result) :-
-    initialize_hidden_word(Word, HiddenWord),
-    game_loop(User, Word, HiddenWord, 0, 0, Result).
+% Palavra a ser adivinhada
+palavra('prolog').
 
-% Função para jogar uma rodada do jogo
-game_loop(User, Word, HiddenWord, Errors, Points, Result) :-
-    display_hidden_word(HiddenWord),
-    display_hangman(Errors),
-    (   Errors >= 6
-    ->  write('Você perdeu!\n'),
-        Result = lost
-    ;   HiddenWord == Word
-    ->  write('Parabéns! Você ganhou!\n'),
-        Result = won
-    ;   write('Digite uma letra: '),
-        read_line_to_string(user_input, Guess),
-        process_guess(User, Word, HiddenWord, Guess, Errors, Points, NewHiddenWord, NewErrors, NewPoints),
-        game_loop(User, Word, NewHiddenWord, NewErrors, NewPoints, Result)
+% Início do jogo
+jogar :-
+    palavra(Palavra),
+    atom_chars(Palavra, Letras),
+    inicializa_forca(Letras, Espacos),
+    jogar_forca(Letras, Espacos, 7, []).
+
+% Inicializa os espaços da palavra
+inicializa_forca([], []).
+inicializa_forca([_|Resto], ['_'|EspacosResto]) :-
+    inicializa_forca(Resto, EspacosResto).
+
+% Loop do jogo
+jogar_forca(_, Espacos, 0, TentativasFeitas) :-
+    clear_screen,
+    draw_hangman(0),
+    writeln('Você perdeu! Tentativas esgotadas.'),
+    writeln('A palavra era:'),
+    palavra(Palavra),
+    writeln(Palavra),
+    writeln('Letras tentadas:'),
+    escreve_palavra(TentativasFeitas),
+    pause_and_continue,
+    show_menu. % Retorna ao menu após a pausa
+jogar_forca(Letras, Espacos, _, _) :-
+    \+ member('_', Espacos),
+    clear_screen,
+    writeln('Parabéns, você ganhou! A palavra é:'),
+    escreve_palavra(Espacos),
+    pause_and_continue,
+    show_menu. % Retorna ao menu após a pausa
+jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas) :-
+    clear_screen,
+    draw_hangman(Tentativas),
+    writeln('Palavra atual:'),
+    escreve_palavra(Espacos),
+    format('Tentativas restantes: ~w~n', [Tentativas]),
+    writeln('Letras já tentadas:'),
+    escreve_palavra(TentativasFeitas),
+    writeln('Você deseja tentar "chutar" a palavra completa? (s/n)'),
+    read_line_to_string(user_input, Chutar),
+    (   Chutar == "s"
+    ->  writeln('Digite a palavra completa:'),
+        read_line_to_string(user_input, ChutePalavra),
+        atom_chars(ChutePalavra, ChuteLista),
+        palavra(PalavraCompleta),
+        atom_chars(PalavraCompleta, PalavraLista),
+        (   ChuteLista == PalavraLista
+        ->  clear_screen,
+            writeln('Parabéns, você acertou a palavra completa!'),
+            escreve_palavra(Letras),
+            pause_and_continue,
+            show_menu % Retorna ao menu após a vitória
+        ;   writeln('Palavra incorreta! Você perde a vez.'),
+            pause_and_continue,
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas)
+        )
+    ;   % Se não quiser chutar a palavra, continua o jogo normalmente
+        writeln('Digite uma letra:'),
+        read_line_to_string(user_input, Chute),
+        string_chars(Chute, [Letra]),
+        (   member(Letra, TentativasFeitas)
+        ->  writeln('Você já tentou essa letra. Tente novamente.'),
+            pause_and_continue,
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas)
+        ;   (   member(Letra, Letras)
+            ->  writeln('Acertou!'),
+                atualiza_palavra(Letras, Espacos, Letra, NovaPalavra),
+                pause_and_continue,
+                jogar_forca(Letras, NovaPalavra, Tentativas, [Letra|TentativasFeitas])
+            ;   writeln('Letra incorreta!'),
+                NovasTentativas is Tentativas - 1,
+                pause_and_continue,
+                jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas])
+            )
+        )
     ).
 
-% Processar o palpite do usuário
-process_guess(_, Word, HiddenWord, Guess, Errors, Points, NewHiddenWord, NewErrors, NewPoints) :-
-    (   sub_atom(Word, _, 1, _, Guess)
-    ->  update_hidden_word(Word, HiddenWord, Guess, NewHiddenWord),
-        NewErrors = Errors,
-        NewPoints is Points + 30
-    ;   NewHiddenWord = HiddenWord,
-        NewErrors is Errors + 1,
-        NewPoints is Points - 10
-    ).
+% Atualiza os espaços da palavra com a letra chutada
+atualiza_palavra([], [], _, []).
+atualiza_palavra([Letra|Resto], ['_'|EspacosResto], Letra, [Letra|NovaPalavra]) :-
+    atualiza_palavra(Resto, EspacosResto, Letra, NovaPalavra).
+atualiza_palavra([Outro|Resto], [Espaco|EspacosResto], Letra, [Espaco|NovaPalavra]) :-
+    Outro \= Letra,
+    atualiza_palavra(Resto, EspacosResto, Letra, NovaPalavra).
 
-% Função para recuperar as palavras
-retrieve_words(Difficulty, [Word1, Word2, Word3]) :-
-    open('data/palavras.txt', read, Stream),
-    read_words(Stream, Difficulty, Words),
-    close(Stream),
-    random_permutation(Words, [Word1, Word2, Word3]).
+% Escreve a palavra na tela
+escreve_palavra([]) :- nl.
+escreve_palavra([H|T]) :-
+    write(H),
+    write(' '),
+    escreve_palavra(T).
 
-read_words(Stream, Difficulty, Words) :-
-    read(Stream, Word),
-    (   Word == end_of_file
-    ->  Words = []
-    ;   Word =.. [_, Difficulty, Palavras],
-        Words = Palavras
-    ).
+% Desenha a forca com base no número de vidas restantes
+draw_hangman(7) :-
+    writeln("                                 ###############"),
+    writeln("                                 #### FORCA ####"),
+    writeln("                                 ###############"),
+    writeln("                                 #      |      #"),
+    writeln("                                 #             #"),
+    writeln("                                 #             #"),
+    writeln("                                 #             #"),
+    writeln("                                 ###############").
+draw_hangman(6) :-
+    writeln("                                 ###############"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #             #"),
+    writeln("                                 #             #"),
+    writeln("                                 ###############").
+draw_hangman(5) :-
+    writeln("                                 ###############"),
+    writeln("                                 #    ('-')__  #"),
+    writeln("                                 #             #"),
+    writeln("                                 ###############").
+draw_hangman(4) :-
+    writeln("                                 ###############"),
+    writeln("                                 #  __('-')__  #"),
+    writeln("                                 #             #"),
+    writeln("                                 ###############").
+draw_hangman(3) :-
+    writeln("                                 ###############"),
+    writeln("                                 #  __('-')__  #"),
+    writeln("                                 #      |      #"),
+    writeln("                                 ###############").
+draw_hangman(2) :-
+    writeln("                                 ###############"),
+    writeln("                                 #  __('-')__  #"),
+    writeln("                                 #      |      #"),
+    writeln("                                 #     /       #"),
+    writeln("                                 ###############").
+draw_hangman(1) :-
+    writeln("                                 ###############"),
+    writeln("                                 #  __('-')__  #"),
+    writeln("                                 #      |      #"),
+    writeln("                                 #     / \\     #"),
+    writeln("                                 ###############").
+draw_hangman(0) :-
+    writeln("                                 ###############"),
+    writeln("                                 #      |      #"),
+    writeln("                                 #    (-.-)    #"),
+    writeln("                                 #     /|\\     #"),
+    writeln("                                 #     / \\     #"),
+    writeln("                                 ###############").
+
+% Limpa a tela
+clear_screen :- tty_clear.
+
+% Função de pausa para leitura
+pause_and_continue :-
+    write('Pressione ENTER para continuar...'),
+    get_char(_).
