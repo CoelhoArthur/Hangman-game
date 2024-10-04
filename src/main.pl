@@ -1,5 +1,5 @@
-:- [game_logic,db].
-
+:- [game_logic].
+:- [bot_logic].
 
 % Função principal para iniciar o menu
 main :- 
@@ -61,7 +61,7 @@ handle_menu_option("3") :-
 handle_menu_option("4") :- 
     write('Você escolheu: Partida contra Bot.\n'),
     pause_and_continue,
-    show_menu.
+    jogar_vs_bot.  % Chama a função para começar o jogo contra o bot
 handle_menu_option("5") :- 
     write('Saindo do jogo...\n'),
     halt.
