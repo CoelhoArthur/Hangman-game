@@ -20,13 +20,43 @@ mode_selection(_) :-
     write('Opção inválida! Tente novamente.\n'),
     selecaoJogar.
 
+% Função para selecionar a dificuldade do jogo
+seleciona_dificuldade(Dificuldade) :-
+    write('Escolha o nível de dificuldade:\n'),
+    write('1 - Fácil\n'),
+    write('2 - Médio\n'),
+    write('3 - Difícil\n'),
+    read_line_to_string(user_input, Option),
+    (   Option == "1" -> Dificuldade = facil;
+        Option == "2" -> Dificuldade = medio;
+        Option == "3" -> Dificuldade = dificil;
+        write('Opção inválida! Tente novamente.\n'),
+        seleciona_dificuldade(Dificuldade)
+    ).
+
 %TODO: PARTE DE PEGAR O USER DO JSON
 % IMAGINO QUE O MÉTODO find_user_by_name PODERÁ AJUDAR
 jogar :-
-    palavra(Palavra),
+    seleciona_dificuldade(Dificuldade),
+    escolhe_palavra_aleatoria(Dificuldade, Palavra),
     atom_chars(Palavra, Letras),
     inicializa_forca(Letras, Espacos),
     jogar_forca(Letras, Espacos, 7, []).
+
+% Escolhe uma palavra aleatória com base na dificuldade
+escolhe_palavra_aleatoria(facil, Palavra) :-
+    palavras_faceis(ListaPalavras),
+    random_member(Palavra, ListaPalavras).
+escolhe_palavra_aleatoria(medio, Palavra) :-
+    palavras_medias(ListaPalavras),
+    random_member(Palavra, ListaPalavras).
+escolhe_palavra_aleatoria(dificil, Palavra) :-
+    palavras_dificeis(ListaPalavras),
+    random_member(Palavra, ListaPalavras).
+
+palavras_faceis(['gato', 'casa', 'sol', 'paz']).
+palavras_medias(['prolog', 'tabela', 'computador', 'teoria']).
+palavras_dificeis(['paralelepipedo', 'conhecimento', 'supercalifragilistico']).
 
 % Inicializa os espaços da palavra
 inicializa_forca([], []).
