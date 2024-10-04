@@ -1,4 +1,5 @@
-:- [game_logic].
+:- [game_logic,db].
+
 
 % Função principal para iniciar o menu
 main :- 
@@ -38,7 +39,7 @@ clear_screen :- tty_clear.
 show_menu :-
     clear_screen, % Limpa a tela antes de mostrar o menu
     write('\nSelecione a opção desejada:\n'),
-    write('1 - Começar jogo\n'),
+    write('1 - Jogar\n'),
     write('2 - Histórico de vitórias/derrotas\n'),
     write('3 - Classificação\n'),
     write('4 - Partida contra Bot\n'),
@@ -48,7 +49,7 @@ show_menu :-
 
 % Lida com as opções do menu
 handle_menu_option("1") :- 
-    jogar.  % Chama a função para começar o jogo
+    selecaoJogar.  % Chama a função para começar o jogo
 handle_menu_option("2") :- 
     write('Você escolheu: Histórico de vitórias/derrotas.\n'),
     pause_and_continue,

@@ -1,9 +1,27 @@
-:- module(game_logic, [jogar/0]).
+:- module(game_logic, selecaoJogar/0, [jogar/0],selecaoJogar/0).
 
 % Palavra a ser adivinhada
 palavra('prolog').
 
 % Início do jogo
+selecaoJogar :- 
+    clear_screen, 
+    write('\nSelecione a opção desejada:\n'),
+    write('1 - SINGLEPLAYER\n'),
+    write('2 - MULTIPLAYER\n'),
+    write('3 - Sair do jogo\n'),
+    read_line_to_string(user_input, Option),
+    mode_selection(Option).
+
+mode_selection("1") :- jogar.
+mode_selection("2") :- jogarMultiplayer. %TODO
+mode_selection("3") :- halt.
+mode_selection(_) :- 
+    write('Opção inválida! Tente novamente.\n'),
+    selecaoJogar.
+
+%TODO: PARTE DE PEGAR O USER DO JSON
+% IMAGINO QUE O MÉTODO find_user_by_name PODERÁ AJUDAR
 jogar :-
     palavra(Palavra),
     atom_chars(Palavra, Letras),
@@ -154,3 +172,47 @@ clear_screen :- tty_clear.
 pause_and_continue :-
     write('Pressione ENTER para continuar...'),
     get_char(_).
+
+jogarMultiplayer :-
+    % Jogador 1
+    write('JOGADOR 1: '),
+    read_line_to_string(user_input, User1),
+    process_player(User1),
+    sleep(3),
+    % Jogador 2
+    write('JOGADOR 2: '),
+    read_line_to_string(user_input, User2),
+    process_player(User2),
+    sleep(3),
+
+    % Continuar com o jogo
+    clear_screen,
+    show_menu.
+
+% Processa e exibe os dados do jogador ou solicita cadastro
+process_player(Name) :-
+    ( find_user_by_name(Name, UserData) ->
+        display_user_info(UserData)
+    ; 
+        % Jogador não encontrado, solicita cadastro
+        write('Jogador não encontrado. Iremos Realizar seu cadastro\n'),
+        request_user_data(Name)
+    ).
+
+% Exibe as informações do jogador formatadas
+display_user_info(UserData) :-
+    UserName = UserData.nome,
+    Pontos = UserData.pontos,
+    Vitorias = UserData.vitorias,
+    Derrotas = UserData.derrotas,
+    
+    format('Jogador: ~w~n', [UserName]),
+    format('Pontos: ~w~n', [Pontos]),
+    format('Vitórias: ~w~n', [Vitorias]),
+    format('Derrotas: ~w~n \n', [Derrotas]).
+
+% Solicita os dados e cadastra um novo jogador
+request_user_data(Name) :-
+    add_user(Name).
+
+%TODO: PARTE LÓGICA DO JOGO MULTIPLAYER
