@@ -1,6 +1,7 @@
-:- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/2]).
+:- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/4]).
 :- use_module(points).
-:- use_module(db).  % Certifique-se de importar o módulo db para manipular JSON
+:- use_module(db).  
+:- use_module(library(http/json)).
 
 % Início do jogo
 selecaoJogar :- 
@@ -33,6 +34,20 @@ seleciona_dificuldade(Dificuldade) :-
         seleciona_dificuldade(Dificuldade)
     ).
 
+% Função para selecionar o tema
+seleciona_tema(Tema) :-
+    write('Escolha o tema:\n'),
+    write('1 - Haskell\n'),
+    write('2 - Python\n'),
+    write('3 - Prolog\n'),
+    read_line_to_string(user_input, Option),
+    (   Option == "1" -> Tema = haskell;  % Usar átomos
+        Option == "2" -> Tema = python;
+        Option == "3" -> Tema = prolog;
+        write('Opção inválida! Tente novamente.\n'),
+        seleciona_tema(Tema)
+    ).
+
 % Função para iniciar o jogo
 jogar :-
     write('Digite seu nome de usuário: '),
@@ -40,35 +55,37 @@ jogar :-
     (   find_user_by_name(PlayerName, UserData)
     ->  % Carregar a pontuação atual do jogador do JSON
         CurrentPoints = UserData.pontos,
+        seleciona_tema(Tema),
         seleciona_dificuldade(Dificuldade),
-        escolhe_palavra_aleatoria(Dificuldade, Palavra),
+        escolhe_palavra_aleatoria(Tema, Dificuldade, Palavra, Dica),
         atom_chars(Palavra, Letras),
         inicializa_forca(Letras, Espacos),
-        jogar_forca(Letras, Espacos, 7, [], CurrentPoints, Palavra, PlayerName)
+        jogar_forca(Letras, Espacos, 7, [], CurrentPoints, Palavra, PlayerName, Dica)
     ;   % Se o usuário não for encontrado, realizar cadastro
         write('Usuário não encontrado. Realizando cadastro...\n'),
         add_user(PlayerName),
+        seleciona_tema(Tema),
         seleciona_dificuldade(Dificuldade),
-        escolhe_palavra_aleatoria(Dificuldade, Palavra),
+        escolhe_palavra_aleatoria(Tema, Dificuldade, Palavra, Dica),
         atom_chars(Palavra, Letras),
         inicializa_forca(Letras, Espacos),
-        jogar_forca(Letras, Espacos, 7, [], 0, Palavra, PlayerName)
+        jogar_forca(Letras, Espacos, 7, [], 0, Palavra, PlayerName, Dica)
     ).
 
-% Escolhe uma palavra aleatória com base na dificuldade
-escolhe_palavra_aleatoria(facil, Palavra) :-
-    palavras_faceis(ListaPalavras),
-    random_member(Palavra, ListaPalavras).
-escolhe_palavra_aleatoria(medio, Palavra) :-
-    palavras_medias(ListaPalavras),
-    random_member(Palavra, ListaPalavras).
-escolhe_palavra_aleatoria(dificil, Palavra) :-
-    palavras_dificeis(ListaPalavras),
-    random_member(Palavra, ListaPalavras).
+% Escolhe uma palavra aleatória com base no tema e dificuldade e retorna a dica associada
+escolhe_palavra_aleatoria(Tema, Dificuldade, Palavra, Dica) :-
+    load_palavras(Tema, Dificuldade, ListaPalavras),
+    random_member(WordDict, ListaPalavras),
+    Palavra = WordDict.palavra,
+    Dica = WordDict.dica.
 
-palavras_faceis(['gato', 'casa', 'sol', 'paz']).
-palavras_medias(['prolog', 'tabela', 'computador', 'teoria']).
-palavras_dificeis(['paralelepipedo', 'conhecimento', 'supercalifragilistico']).
+% Função para carregar palavras do JSON
+load_palavras(Tema, Dificuldade, Palavras) :-
+    open('palavras.json', read, Stream),
+    json_read_dict(Stream, JsonDict),
+    close(Stream),
+    get_dict(Tema, JsonDict.temas, TemaDict),
+    get_dict(Dificuldade, TemaDict, Palavras).
 
 % Inicializa os espaços da palavra
 inicializa_forca([], []).
@@ -76,9 +93,10 @@ inicializa_forca([_|Resto], ['_'|EspacosResto]) :-
     inicializa_forca(Resto, EspacosResto).
 
 % Loop do jogo
-jogar_forca(_, Espacos, 0, TentativasFeitas, Points, Palavra, PlayerName) :-
+jogar_forca(_, Espacos, 0, TentativasFeitas, Points, Palavra, PlayerName, Dica) :-
     clear_screen,
     draw_hangman(0),
+    writeln('Dica: '), writeln(Dica),  % Exibe a dica durante o jogo
     writeln('Você perdeu! Tentativas esgotadas.'),
     writeln('A palavra era:'),
     writeln(Palavra),
@@ -89,9 +107,10 @@ jogar_forca(_, Espacos, 0, TentativasFeitas, Points, Palavra, PlayerName) :-
     pause_and_continue,
     show_menu.
 
-jogar_forca(Letras, Espacos, _, _, Points, Palavra, PlayerName) :-
+jogar_forca(Letras, Espacos, _, _, Points, Palavra, PlayerName, Dica) :-
     \+ member('_', Espacos),
     clear_screen,
+    writeln('Dica: '), writeln(Dica),  % Exibe a dica durante o jogo
     writeln('Parabéns, você ganhou! A palavra é:'),
     escreve_palavra(Espacos),
     format('Sua pontuação final é: ~w~n', [Points]),
@@ -99,8 +118,9 @@ jogar_forca(Letras, Espacos, _, _, Points, Palavra, PlayerName) :-
     pause_and_continue,
     show_menu.
 
-jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName) :-
+jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica) :-
     clear_screen,
+    writeln('Dica: '), writeln(Dica),  % Exibe a dica durante o jogo
     draw_hangman(Tentativas),
     writeln('Palavra atual:'),
     escreve_palavra(Espacos),
@@ -116,6 +136,7 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Play
         atom_chars(Palavra, PalavraLista),
         (   ChuteLista == PalavraLista
         ->  clear_screen,
+            writeln('Dica: '), writeln(Dica),  % Exibe a dica durante o jogo
             writeln('Parabéns, você acertou a palavra completa!'),
             length(Espacos, LetrasFaltando),
             PontosGanhos is 30 * LetrasFaltando,
@@ -129,27 +150,26 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Play
             subtract_points(Points, 10, NewPoints, PlayerName),
             NovasTentativas is Tentativas - 1,
             pause_and_continue,
-            jogar_forca(Letras, Espacos, NovasTentativas, TentativasFeitas, NewPoints, Palavra, PlayerName)
+            jogar_forca(Letras, Espacos, NovasTentativas, TentativasFeitas, NewPoints, Palavra, PlayerName, Dica)
         )
-    ;   % Se não quiser chutar a palavra, continua o jogo normalmente
-        writeln('Digite uma letra:'),
+    ;   writeln('Digite uma letra:'),
         read_line_to_string(user_input, Chute),
         string_chars(Chute, [Letra]),
         (   member(Letra, TentativasFeitas)
         ->  writeln('Você já tentou essa letra. Tente novamente.'),
             pause_and_continue,
-            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName)
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
         ;   (   member(Letra, Letras)
             ->  writeln('Acertou!'),
                 atualiza_palavra(Letras, Espacos, Letra, NovaPalavra),
                 add_points(Points, 30, NewPoints, PlayerName),
                 pause_and_continue,
-                jogar_forca(Letras, NovaPalavra, Tentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName)
+                jogar_forca(Letras, NovaPalavra, Tentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName, Dica)
             ;   writeln('Letra incorreta!'),
                 NovasTentativas is Tentativas - 1,
-                subtract_points(Points, 10, NewPoints, PlayerName),  % Subtrai sempre 10 pontos
+                subtract_points(Points, 10, NewPoints, PlayerName),
                 pause_and_continue,
-                jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName)
+                jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName, Dica)
             )
         )
     ).
@@ -187,29 +207,32 @@ draw_hangman(6) :-
     writeln("                                 ###############").
 draw_hangman(5) :-
     writeln("                                 ###############"),
-    writeln("                                 #    ('-')__  #"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #      |      #"),
     writeln("                                 #             #"),
     writeln("                                 ###############").
 draw_hangman(4) :-
     writeln("                                 ###############"),
-    writeln("                                 #  __('-')__  #"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #     /|      #"),
     writeln("                                 #             #"),
     writeln("                                 ###############").
 draw_hangman(3) :-
     writeln("                                 ###############"),
-    writeln("                                 #  __('-')__  #"),
-    writeln("                                 #      |      #"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #     /|\\     #"),
+    writeln("                                 #             #"),
     writeln("                                 ###############").
 draw_hangman(2) :-
     writeln("                                 ###############"),
-    writeln("                                 #  __('-')__  #"),
-    writeln("                                 #      |      #"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #     /|\\     #"),
     writeln("                                 #     /       #"),
     writeln("                                 ###############").
 draw_hangman(1) :-
     writeln("                                 ###############"),
-    writeln("                                 #  __('-')__  #"),
-    writeln("                                 #      |      #"),
+    writeln("                                 #    ('-')    #"),
+    writeln("                                 #     /|\\     #"),
     writeln("                                 #     / \\     #"),
     writeln("                                 ###############").
 draw_hangman(0) :-
@@ -228,7 +251,7 @@ pause_and_continue :-
     write('Pressione ENTER para continuar...'),
     get_char(_).
 
-jogarMultiplayer :- 
+jogarMultiplayer :-
     % Placeholder para implementação futura do modo multiplayer
     write('Modo multiplayer em desenvolvimento.\n'),
     pause_and_continue,
