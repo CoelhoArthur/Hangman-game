@@ -1,10 +1,10 @@
 :- [game_logic].
-:- [bot_logic].
-:-[db].
+:- [db].
+:- [points].
 
 % Função principal para iniciar o menu
 main :- 
-    show_opening, % Mostra a tela de abertura
+    show_opening,  % Mostra a tela de abertura
     show_menu.
 
 % Tela de abertura
@@ -38,7 +38,7 @@ clear_screen :- tty_clear.
 
 % Mostra o menu interativo
 show_menu :-
-    clear_screen, % Limpa a tela antes de mostrar o menu
+    clear_screen,  % Limpa a tela antes de mostrar o menu
     write('\nSelecione a opção desejada:\n'),
     write('1 - Jogar\n'),
     write('2 - Histórico de vitórias/derrotas\n'),
@@ -60,7 +60,7 @@ handle_menu_option("3") :-
     pause_and_continue,
     show_menu.
 handle_menu_option("4") :- 
-    jogar_vs_bot,
+    jogar_vs_bot,  % Implementação futura para jogar contra o bot
     pause_and_continue,
     show_menu.
 handle_menu_option("5") :- 

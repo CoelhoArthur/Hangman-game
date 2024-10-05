@@ -1,8 +1,8 @@
 [
-  {"nome":"Arthur", "pontos":0, "vitorias":0, "derrotas":0},
-  {"nome":"halt", "pontos":0, "vitorias":0, "derrotas":0},
-  {"nome":"Axel", "pontos":0, "vitorias":0, "derrotas":0},
-  {"nome":"Orlando", "pontos":30, "vitorias":0, "derrotas":0},
-  {"nome":"teste", "pontos":0, "vitorias":0, "derrotas":0},
-  {"nome":"teste2", "pontos":0, "vitorias":0, "derrotas":0}
+  {"derrotas":0, "nome":"halt", "pontos":0, "vitorias":0},
+  {"derrotas":0, "nome":"teste2", "pontos":0, "vitorias":0},
+  {"derrotas":0, "nome":"teste", "pontos":0, "vitorias":0},
+  {"derrotas":0, "nome":"Axel", "pontos":0, "vitorias":0},
+  {"derrotas":4, "nome":"Orlando", "pontos":120, "vitorias":3},
+  {"derrotas":0, "nome":"Arthur", "pontos":100, "vitorias":1}
 ]

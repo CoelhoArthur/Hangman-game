@@ -1,7 +1,6 @@
-:- module(game_logic, selecaoJogar/0, [jogar/0],selecaoJogar/0).
-
-% Palavra a ser adivinhada
-palavra('prolog').
+:- module(game_logic, [selecaoJogar/0, jogar/0]).
+:- use_module(points).
+:- use_module(db).  % Certifique-se de importar o módulo db para manipular JSON
 
 % Início do jogo
 selecaoJogar :- 
@@ -14,7 +13,7 @@ selecaoJogar :-
     mode_selection(Option).
 
 mode_selection("1") :- jogar.
-mode_selection("2") :- jogarMultiplayer. %TODO
+mode_selection("2") :- jogarMultiplayer.  % Placeholder para o futuro
 mode_selection("3") :- halt.
 mode_selection(_) :- 
     write('Opção inválida! Tente novamente.\n'),
@@ -34,14 +33,27 @@ seleciona_dificuldade(Dificuldade) :-
         seleciona_dificuldade(Dificuldade)
     ).
 
-%TODO: PARTE DE PEGAR O USER DO JSON
-% IMAGINO QUE O MÉTODO find_user_by_name PODERÁ AJUDAR
+% Função para iniciar o jogo
 jogar :-
-    seleciona_dificuldade(Dificuldade),
-    escolhe_palavra_aleatoria(Dificuldade, Palavra),
-    atom_chars(Palavra, Letras),
-    inicializa_forca(Letras, Espacos),
-    jogar_forca(Letras, Espacos, 7, []).
+    write('Digite seu nome de usuário: '),
+    read_line_to_string(user_input, PlayerName),
+    (   find_user_by_name(PlayerName, UserData)
+    ->  % Carregar a pontuação atual do jogador do JSON
+        CurrentPoints = UserData.pontos,
+        seleciona_dificuldade(Dificuldade),
+        escolhe_palavra_aleatoria(Dificuldade, Palavra),
+        atom_chars(Palavra, Letras),
+        inicializa_forca(Letras, Espacos),
+        jogar_forca(Letras, Espacos, 7, [], CurrentPoints, Palavra, PlayerName)
+    ;   % Se o usuário não for encontrado, realizar cadastro
+        write('Usuário não encontrado. Realizando cadastro...\n'),
+        add_user(PlayerName),
+        seleciona_dificuldade(Dificuldade),
+        escolhe_palavra_aleatoria(Dificuldade, Palavra),
+        atom_chars(Palavra, Letras),
+        inicializa_forca(Letras, Espacos),
+        jogar_forca(Letras, Espacos, 7, [], 0, Palavra, PlayerName)
+    ).
 
 % Escolhe uma palavra aleatória com base na dificuldade
 escolhe_palavra_aleatoria(facil, Palavra) :-
@@ -64,25 +76,30 @@ inicializa_forca([_|Resto], ['_'|EspacosResto]) :-
     inicializa_forca(Resto, EspacosResto).
 
 % Loop do jogo
-jogar_forca(_, Espacos, 0, TentativasFeitas) :-
+jogar_forca(_, Espacos, 0, TentativasFeitas, Points, Palavra, PlayerName) :-
     clear_screen,
     draw_hangman(0),
     writeln('Você perdeu! Tentativas esgotadas.'),
     writeln('A palavra era:'),
-    palavra(Palavra),
     writeln(Palavra),
     writeln('Letras tentadas:'),
     escreve_palavra(TentativasFeitas),
+    format('Sua pontuação final é: ~w~n', [Points]),
+    update_defeats(PlayerName),
     pause_and_continue,
-    show_menu. % Retorna ao menu após a pausa
-jogar_forca(Letras, Espacos, _, _) :-
+    show_menu.
+
+jogar_forca(Letras, Espacos, _, _, Points, Palavra, PlayerName) :-
     \+ member('_', Espacos),
     clear_screen,
     writeln('Parabéns, você ganhou! A palavra é:'),
     escreve_palavra(Espacos),
+    format('Sua pontuação final é: ~w~n', [Points]),
+    update_victories(PlayerName),
     pause_and_continue,
-    show_menu. % Retorna ao menu após a pausa
-jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas) :-
+    show_menu.
+
+jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName) :-
     clear_screen,
     draw_hangman(Tentativas),
     writeln('Palavra atual:'),
@@ -96,17 +113,23 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas) :-
     ->  writeln('Digite a palavra completa:'),
         read_line_to_string(user_input, ChutePalavra),
         atom_chars(ChutePalavra, ChuteLista),
-        palavra(PalavraCompleta),
-        atom_chars(PalavraCompleta, PalavraLista),
+        atom_chars(Palavra, PalavraLista),
         (   ChuteLista == PalavraLista
         ->  clear_screen,
             writeln('Parabéns, você acertou a palavra completa!'),
+            length(Espacos, LetrasFaltando),
+            PontosGanhos is 30 * LetrasFaltando,
+            add_points(Points, PontosGanhos, NewPoints, PlayerName),
             escreve_palavra(Letras),
+            format('Sua pontuação final é: ~w~n', [NewPoints]),
+            update_victories(PlayerName),
             pause_and_continue,
-            show_menu % Retorna ao menu após a vitória
-        ;   writeln('Palavra incorreta! Você perde a vez.'),
+            show_menu
+        ;   writeln('Palavra incorreta! Você perde uma tentativa e 10 pontos.'),
+            subtract_points(Points, 10, NewPoints, PlayerName),
+            NovasTentativas is Tentativas - 1,
             pause_and_continue,
-            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas)
+            jogar_forca(Letras, Espacos, NovasTentativas, TentativasFeitas, NewPoints, Palavra, PlayerName)
         )
     ;   % Se não quiser chutar a palavra, continua o jogo normalmente
         writeln('Digite uma letra:'),
@@ -115,16 +138,18 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas) :-
         (   member(Letra, TentativasFeitas)
         ->  writeln('Você já tentou essa letra. Tente novamente.'),
             pause_and_continue,
-            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas)
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName)
         ;   (   member(Letra, Letras)
             ->  writeln('Acertou!'),
                 atualiza_palavra(Letras, Espacos, Letra, NovaPalavra),
+                add_points(Points, 30, NewPoints, PlayerName),
                 pause_and_continue,
-                jogar_forca(Letras, NovaPalavra, Tentativas, [Letra|TentativasFeitas])
+                jogar_forca(Letras, NovaPalavra, Tentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName)
             ;   writeln('Letra incorreta!'),
                 NovasTentativas is Tentativas - 1,
+                subtract_points(Points, 10, NewPoints, PlayerName),  % Subtrai sempre 10 pontos
                 pause_and_continue,
-                jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas])
+                jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName)
             )
         )
     ).
@@ -203,46 +228,8 @@ pause_and_continue :-
     write('Pressione ENTER para continuar...'),
     get_char(_).
 
-jogarMultiplayer :-
-    % Jogador 1
-    write('JOGADOR 1: '),
-    read_line_to_string(user_input, User1),
-    process_player(User1),
-    sleep(3),
-    % Jogador 2
-    write('JOGADOR 2: '),
-    read_line_to_string(user_input, User2),
-    process_player(User2),
-    sleep(3),
-
-    % Continuar com o jogo
-    clear_screen,
+jogarMultiplayer :- 
+    % Placeholder para implementação futura do modo multiplayer
+    write('Modo multiplayer em desenvolvimento.\n'),
+    pause_and_continue,
     show_menu.
-
-% Processa e exibe os dados do jogador ou solicita cadastro
-process_player(Name) :-
-    ( find_user_by_name(Name, UserData) ->
-        display_user_info(UserData)
-    ; 
-        % Jogador não encontrado, solicita cadastro
-        write('Jogador não encontrado. Iremos Realizar seu cadastro\n'),
-        request_user_data(Name)
-    ).
-
-% Exibe as informações do jogador formatadas
-display_user_info(UserData) :-
-    UserName = UserData.nome,
-    Pontos = UserData.pontos,
-    Vitorias = UserData.vitorias,
-    Derrotas = UserData.derrotas,
-    
-    format('Jogador: ~w~n', [UserName]),
-    format('Pontos: ~w~n', [Pontos]),
-    format('Vitórias: ~w~n', [Vitorias]),
-    format('Derrotas: ~w~n \n', [Derrotas]).
-
-% Solicita os dados e cadastra um novo jogador
-request_user_data(Name) :-
-    add_user(Name).
-
-%TODO: PARTE LÓGICA DO JOGO MULTIPLAYER
