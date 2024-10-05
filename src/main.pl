@@ -1,6 +1,7 @@
 :- [game_logic].
 :- [db].
 :- [points].
+:- [bot_logic].  % Adiciona o módulo bot_logic para usar jogar_vs_bot/0
 
 % Função principal para iniciar o menu
 main :- 
@@ -60,7 +61,7 @@ handle_menu_option("3") :-
     pause_and_continue,
     show_menu.
 handle_menu_option("4") :- 
-    jogar_vs_bot,  % Implementação futura para jogar contra o bot
+    jogar_vs_bot,  % Chama a função para jogar contra o bot
     pause_and_continue,
     show_menu.
 handle_menu_option("5") :- 

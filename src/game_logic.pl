@@ -1,4 +1,4 @@
-:- module(game_logic, [selecaoJogar/0, jogar/0]).
+:- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/2]).
 :- use_module(points).
 :- use_module(db).  % Certifique-se de importar o módulo db para manipular JSON
 

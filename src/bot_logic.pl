@@ -1,10 +1,23 @@
 :- module(bot_logic, [jogar_vs_bot/0]).
-
-:- use_module(game_logic, [palavra/1, inicializa_forca/2, atualiza_palavra/4, draw_hangman/1, escreve_palavra/1, clear_screen/0, pause_and_continue/0]).
+:- use_module(game_logic, [escolhe_palavra_aleatoria/2, inicializa_forca/2, atualiza_palavra/4, draw_hangman/1, escreve_palavra/1, clear_screen/0, pause_and_continue/0, show_menu/0]).
 
 % Função principal para iniciar o jogo contra o bot
 jogar_vs_bot :-
-    palavra(Palavra),
+    write('Escolha o nível de dificuldade:\n'),
+    write('1 - Fácil\n'),
+    write('2 - Médio\n'),
+    write('3 - Difícil\n'),
+    read_line_to_string(user_input, Option),
+    (   Option == "1" -> Dificuldade = facil;
+        Option == "2" -> Dificuldade = medio;
+        Option == "3" -> Dificuldade = dificil;
+        % Caso contrário, entrada inválida
+        write('Opção inválida! Tente novamente.\n'),
+        pause_and_continue,
+        jogar_vs_bot  % Reinicia a função se a opção for inválida
+    ),
+    % Apenas prossegue se uma opção válida foi selecionada
+    escolhe_palavra_aleatoria(Dificuldade, Palavra),  % Escolhe uma palavra aleatória
     atom_chars(Palavra, Letras),
     inicializa_forca(Letras, EspacosJogador),
     inicializa_forca(Letras, EspacosBot),
@@ -17,8 +30,7 @@ jogar_forca_vs_bot(_, EspacosJogador, _, 0, _, TentativasJogador, _) :- % Jogado
     writeln('Você perdeu! Tentativas esgotadas.'),
     writeln('Bot venceu!'),
     writeln('A palavra era:'),
-    palavra(Palavra),
-    escreve_palavra(Palavra),
+    escreve_palavra(EspacosJogador),
     writeln('Letras tentadas pelo Jogador:'),
     escreve_palavra(TentativasJogador),
     pause_and_continue,
@@ -30,8 +42,7 @@ jogar_forca_vs_bot(_, _, EspacosBot, _, 0, _, TentativasBot) :- % Bot perde
     writeln('Bot perdeu! Tentativas esgotadas.'),
     writeln('Jogador venceu!'),
     writeln('A palavra era:'),
-    palavra(Palavra),
-    escreve_palavra(Palavra),
+    escreve_palavra(EspacosBot),
     writeln('Letras tentadas pelo Bot:'),
     escreve_palavra(TentativasBot),
     pause_and_continue,
@@ -76,7 +87,7 @@ jogar_forca_vs_bot(Letras, EspacosJogador, EspacosBot, TentativasJogador, Tentat
     writeln('Letras já tentadas pelo Bot:'),
     escreve_palavra(TentativasBotLista),
     writeln('-------------------------------------------'),
-    
+
     % Turno do Jogador
     writeln('Sua vez! Você deseja tentar "chutar" a palavra completa? (s/n)'),
     read_line_to_string(user_input, Chutar),
@@ -84,9 +95,8 @@ jogar_forca_vs_bot(Letras, EspacosJogador, EspacosBot, TentativasJogador, Tentat
     ->  writeln('Digite a palavra completa:'),
         read_line_to_string(user_input, ChutePalavra),
         atom_chars(ChutePalavra, ChuteLista),
-        palavra(PalavraCompleta),
-        atom_chars(PalavraCompleta, PalavraLista),
-        (   ChuteLista == PalavraLista
+        atom_chars(PalavraCompleta, Letras),
+        (   ChuteLista == Letras
         ->  clear_screen,
             writeln('Parabéns, você acertou a palavra completa!'),
             escreve_palavra(Letras),
