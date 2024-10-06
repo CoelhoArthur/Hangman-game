@@ -1,0 +1,10 @@
+{
+  "dica":"Define uma relação lógica entre fatos",
+  "espacos": ["_", "_", "_", "_", "a" ],
+  "jogador":"axel",
+  "letras": ["r", "e", "g", "r", "a" ],
+  "palavra":"regra",
+  "pontos":410,
+  "tentativas":7,
+  "tentativas_feitas": ["a" ]
+}
