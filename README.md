@@ -7,10 +7,12 @@ Grupo:
 - Orlando Vírginio Penha Júnior
 
 ## COMO EXECUTAR
-1° Ao fazer fazer o push do repositório, entre na pasta *Hangman-game/src* e execute o comando:
+1° Ao fazer fazer o push do repositório, entre na pasta *Hangman-game/src* e execute o comando: 
+
                         `$ swipl main.pl`
 
 2° Em seguida, digite:
+
                        ` ? - main.`
 
 E assim, dará ínicio ao jogo.
