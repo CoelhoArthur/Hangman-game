@@ -1,6 +1,7 @@
 :- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/4]).
 :- use_module(points).
 :- use_module(db).  
+:- use_module(sidequests).
 :- use_module(library(http/json)).
 
 % Início do jogo
@@ -127,15 +128,15 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Play
     format('Tentativas restantes: ~w~n', [Tentativas]),
     writeln('Letras já tentadas:'),
     escreve_palavra(TentativasFeitas),
-    writeln('Você deseja tentar "chutar" a palavra completa? (s/n)'),
+    writeln('Você deseja tentar "chutar" a palavra completa? (s/n/q)'),
     read_line_to_string(user_input, Chutar),
-    (   Chutar == "s"
-    ->  writeln('Digite a palavra completa:'),
+    (   Chutar == "s" -> 
+        writeln('Digite a palavra completa:'),
         read_line_to_string(user_input, ChutePalavra),
         atom_chars(ChutePalavra, ChuteLista),
         atom_chars(Palavra, PalavraLista),
-        (   ChuteLista == PalavraLista
-        ->  clear_screen,
+        (   ChuteLista == PalavraLista ->  
+            clear_screen,
             writeln('Dica: '), writeln(Dica),  % Exibe a dica durante o jogo
             writeln('Parabéns, você acertou a palavra completa!'),
             length(Espacos, LetrasFaltando),
@@ -152,15 +153,16 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Play
             pause_and_continue,
             jogar_forca(Letras, Espacos, NovasTentativas, TentativasFeitas, NewPoints, Palavra, PlayerName, Dica)
         )
-    ;   writeln('Digite uma letra:'),
+    ;   Chutar == "n" -> 
+        writeln('Digite uma letra:'),
         read_line_to_string(user_input, Chute),
         string_chars(Chute, [Letra]),
-        (   member(Letra, TentativasFeitas)
-        ->  writeln('Você já tentou essa letra. Tente novamente.'),
+        (   member(Letra, TentativasFeitas) ->  
+            writeln('Você já tentou essa letra. Tente novamente.'),
             pause_and_continue,
             jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
-        ;   (   member(Letra, Letras)
-            ->  writeln('Acertou!'),
+        ;   (   member(Letra, Letras) ->  
+                writeln('Acertou!'),
                 atualiza_palavra(Letras, Espacos, Letra, NovaPalavra),
                 add_points(Points, 30, NewPoints, PlayerName),
                 pause_and_continue,
@@ -172,8 +174,22 @@ jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Play
                 jogar_forca(Letras, Espacos, NovasTentativas, [Letra|TentativasFeitas], NewPoints, Palavra, PlayerName, Dica)
             )
         )
+    ;   Chutar == "q" -> ( 
+            Tentativas < 7 -> (
+            pergunta_sidequest -> NovasTentativas is Tentativas + 1,
+            jogar_forca(Letras, Espacos, NovasTentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica);
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
+            );
+            writeln('Você ainda não possui erros.'),
+            sleep(2),
+            jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
+        )
+    ;   % Caso padrão para opção inválida
+        writeln('Opção inválida'),
+        sleep(1),
+        jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
     ).
-
+     
 % Atualiza os espaços da palavra com a letra chutada
 atualiza_palavra([], [], _, []).
 atualiza_palavra([Letra|Resto], ['_'|EspacosResto], Letra, [Letra|NovaPalavra]) :-
