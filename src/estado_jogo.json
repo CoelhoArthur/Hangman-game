@@ -1,10 +1,10 @@
 {
-  "dica":"Define uma relação lógica entre fatos",
-  "espacos": ["_", "_", "_", "_", "a" ],
+  "dica":"Classe de classes",
+  "espacos": ["_", "_", "_", "a", "_", "_", "a", "_", "_" ],
   "jogador":"axel",
-  "letras": ["r", "e", "g", "r", "a" ],
-  "palavra":"regra",
-  "pontos":410,
+  "letras": ["m", "e", "t", "a", "c", "l", "a", "s", "s" ],
+  "palavra":"metaclass",
+  "pontos":440,
   "tentativas":7,
   "tentativas_feitas": ["a" ]
 }
