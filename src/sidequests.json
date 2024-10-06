@@ -1,0 +1,246 @@
+[
+    {
+      "pergunta": "Quem criou a linguagem de programacao Python?",
+      "resposta": "GUIDO"
+    },
+    {
+      "pergunta": "Qual a maior complexidade de um algoritmo de busca linear?",
+      "resposta": "O(N)"
+    },
+    {
+      "pergunta": "Qual a principal utilidade das filas na estrutura de dados?",
+      "resposta": "PROCESSAMENTO"
+    },
+    {
+      "pergunta": "Quem e o inventor da World Wide Web?",
+      "resposta": "BERNERSLEE"
+    },
+    {
+      "pergunta": "Qual o primeiro nome do computador?",
+      "resposta": "ENIAC"
+    },
+    {
+      "pergunta": "Qual a maior diferenca do C para Python?",
+      "resposta": "INTERPRETACAO"
+    },
+    {
+      "pergunta": "Qual algoritmo de ordenacao e eficiente em grandes datasets?",
+      "resposta": "QUICKSORT"
+    },
+    {
+      "pergunta": "Quantos bits compoem um byte?",
+      "resposta": "8"
+    },
+    {
+      "pergunta": "Qual e um algoritmo de machine learning utilizado para classificacao?",
+      "resposta": "SVM"
+    },
+    {
+      "pergunta": "Qual a suite de testes unitarios para Java?",
+      "resposta": "JUNIT"
+    },
+    {
+      "pergunta": "Quem mantem um historico de comandos no Linux?",
+      "resposta": "BASH"
+    },
+    {
+      "pergunta": "Qual e uma das linguagens de programacao fundacionais?",
+      "resposta": "FORTRAN"
+    },
+    {
+      "pergunta": "O que e polimorfismo em POO?",
+      "resposta": "FLEXIBILIDADE"
+    },
+    {
+      "pergunta": "Quantos elementos podem estar em um array?",
+      "resposta": "N"
+    },
+    {
+      "pergunta": "Qual o primeiro sistema de banco de dados?",
+      "resposta": "IDS"
+    },
+    {
+      "pergunta": "Qual estrutura e utilizada para implementar um Filo?",
+      "resposta": "FILA"
+    },
+    {
+      "pergunta": "Quem mantem o controle de versoes de codigo?",
+      "resposta": "GIT"
+    },
+    {
+      "pergunta": "O que e uma JVM?",
+      "resposta": "VIRTUAL"
+    },
+    {
+      "pergunta": "Quem e conhecida como a mae da programacao?",
+      "resposta": "ADA"
+    },
+    {
+      "pergunta": "Quantos bits formam um inteiro?",
+      "resposta": "16"
+    },
+    {
+      "pergunta": "Como encontrar padroes em textos?",
+      "resposta": "REGEX"
+    },
+    {
+      "pergunta": "Qual a principal funcao de um servidor de aplicacao?",
+      "resposta": "API"
+    },
+    {
+      "pergunta": "Qual e a estrutura de dados utilizada em uma pilha?",
+      "resposta": "LIFO"
+    },
+    {
+      "pergunta": "O que significa HTTP?",
+      "resposta": "PROTOCOLO"
+    },
+    {
+      "pergunta": "Qual estrutura de dados e utilizada para grafos?",
+      "resposta": "LISTA"
+    },
+    {
+      "pergunta": "Qual linguagem e usada para estilizar paginas web?",
+      "resposta": "CSS"
+    },
+    {
+      "pergunta": "Quem criou a linguagem de programacao Java?",
+      "resposta": "SUN"
+    },
+    {
+      "pergunta": "Qual estrutura de dados e usada para mapear chaves em valores?",
+      "resposta": "DICIONARIO"
+    },
+    {
+      "pergunta": "Quem criou o sistema operacional Linux?",
+      "resposta": "TORVALDS"
+    },
+    {
+      "pergunta": "Qual a funcao do garbage collector?",
+      "resposta": "MEMORIA"
+    },
+    {
+      "pergunta": "Qual e o protocolo principal para enviar emails?",
+      "resposta": "SMTP"
+    },
+    {
+      "pergunta": "O que e um algoritmo guloso?",
+      "resposta": "HEURISTICA"
+    },
+    {
+      "pergunta": "O que e um design pattern?",
+      "resposta": "SOLUCAO"
+    },
+    {
+      "pergunta": "Qual estrutura e usada para uma fila de prioridade?",
+      "resposta": "HEAP"
+    },
+    {
+      "pergunta": "Qual e o metodo para buscar elementos em uma arvore binaria?",
+      "resposta": "INORDER"
+    },
+    {
+      "pergunta": "O que e um commit no Git?",
+      "resposta": "ALTERACAO"
+    },
+    {
+      "pergunta": "Qual e o principal uso de funcoes recursivas?",
+      "resposta": "REPETICAO"
+    },
+    {
+      "pergunta": "Qual linguagem e utilizada para scripts em navegadores?",
+      "resposta": "JAVASCRIPT"
+    },
+    {
+      "pergunta": "Qual e o tipo de dado usado para valores verdadeiros ou falsos?",
+      "resposta": "BOOLEANO"
+    },
+    {
+      "pergunta": "O que e uma classe abstrata?",
+      "resposta": "MODELO"
+    },
+    {
+      "pergunta": "Quem criou a linguagem de programacao C?",
+      "resposta": "KERNIGHAN"
+    },
+    {
+      "pergunta": "Qual a estrutura de dados que permite acesso aleatorio?",
+      "resposta": "ARRAY"
+    },
+    {
+      "pergunta": "Qual a principal vantagem do codigo aberto?",
+      "resposta": "COLABORACAO"
+    },
+    {
+      "pergunta": "O que e uma chave primaria em um banco de dados?",
+      "resposta": "IDENTIFICADOR"
+    },
+    {
+      "pergunta": "Qual e o operador logico que representa E?",
+      "resposta": "AND"
+    },
+    {
+      "pergunta": "Qual e a principal caracteristica de um algoritmo eficiente?",
+      "resposta": "DESEMPENHO"
+    },
+    {
+      "pergunta": "Qual linguagem e popular para analise de dados?",
+      "resposta": "PYTHON"
+    },
+    {
+      "pergunta": "O que e uma lista encadeada?",
+      "resposta": "SEQUENCIA"
+    },
+    {
+      "pergunta": "Qual e a estrutura de dados para armazenar pares chave-valor?",
+      "resposta": "HASHMAP"
+    },
+    {
+      "pergunta": "Qual estrutura e usada para implementar uma pilha?",
+      "resposta": "LIFO"
+    },
+    {
+      "pergunta": "Quem criou a linguagem de programacao Ruby?",
+      "resposta": "MATZ"
+    },
+    {
+      "pergunta": "Qual e o tipo de dados usado para armazenar texto?",
+      "resposta": "STRING"
+    },
+    {
+      "pergunta": "Qual linguagem e utilizada para manipulacao de banco de dados?",
+      "resposta": "SQL"
+    },
+    {
+      "pergunta": "O que significa IDE?",
+      "resposta": "AMBIENTE"
+    },
+    {
+      "pergunta": "Qual e o componente principal de um computador?",
+      "resposta": "PROCESSADOR"
+    },
+    {
+      "pergunta": "Qual algoritmo encontra o menor caminho em grafos?",
+      "resposta": "DIJKSTRA"
+    },
+    {
+      "pergunta": "Qual e a complexidade do algoritmo de busca binaria?",
+      "resposta": "O(LOGN)"
+    },
+    {
+      "pergunta": "O que e um breakpoint?",
+      "resposta": "PAUSA"
+    },
+    {
+      "pergunta": "Qual e a estrutura para armazenar dados hierarquicos?",
+      "resposta": "ARVORE"
+    },
+    {
+      "pergunta": "O que significa API?",
+      "resposta": "INTERFACE"
+    },
+    {
+      "pergunta": "Que empresa o sistema operacional Windows?",
+      "resposta": "MICROSOFT"
+    }
+]
