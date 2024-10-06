@@ -8,18 +8,18 @@ Grupo:
 
 ## COMO EXECUTAR
 1° Ao fazer fazer o push do repositório, entre na pasta *Hangman-game/src* e execute o comando:
-                        $ swipl main.pl
+                        `$ swipl main.pl`
 
 2° Em seguida, digite:
-                        ? - main.
+                       ` ? - main.`
 
 E assim, dará ínicio ao jogo.
 
 ## COMO FUNCIONA O JOGO:
 - Será possível jogar nos modos:
-- Singleplayer: Onde o jogador terá 7 tentativas de chutar uma letra da palavra ou poderá chutar a palavra toda.
-- Multiplayer: Onde 2 jogadores se enfrentarão e dividirão a mesma tela.
-- Jogador vs Bot: Onde o jogador disputará a partida contra um bot apenas.
+> Singleplayer: Onde o jogador terá 7 tentativas de chutar uma letra da palavra ou poderá chutar a palavra toda.
+> Multiplayer: Onde 2 jogadores se enfrentarão e dividirão a mesma tela.
+> Jogador vs Bot: Onde o jogador disputará a partida contra um bot apenas.
 
 - _SIDEQUESTS_: No modo singleplayer, é possível ter acesso aos sidequests, que são perguntas sobre programação, onde, caso o jogador acerte a palavra ele consegue recuperar uma tentativa, caso erre, continuará no estado anterior.
 
