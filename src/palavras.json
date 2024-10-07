@@ -1,0 +1,40 @@
+{
+    "temas": {
+        "haskell": {
+            "facil": [
+                { "palavra": "lambda", "dica": "Função anônima" },
+                { "palavra": "monad", "dica": "Estrutura usada em programação funcional" }
+            ],
+            "medio": [
+                { "palavra": "currying", "dica": "Transformação de funções com múltiplos argumentos" }
+            ],
+            "dificil": [
+                { "palavra": "haskell", "dica": "Linguagem de programação funcional pura" }
+            ]
+        },
+        "python": {
+            "facil": [
+                { "palavra": "list", "dica": "Estrutura de dados mutável" },
+                { "palavra": "tuple", "dica": "Estrutura de dados imutável" }
+            ],
+            "medio": [
+                { "palavra": "decorator", "dica": "Função que estende o comportamento de outras funções" }
+            ],
+            "dificil": [
+                { "palavra": "metaclass", "dica": "Classe de classes" }
+            ]
+        },
+        "prolog": {
+            "facil": [
+                { "palavra": "fato", "dica": "Declaração de algo verdadeiro" },
+                { "palavra": "regra", "dica": "Define uma relação lógica entre fatos" }
+            ],
+            "medio": [
+                { "palavra": "unificacao", "dica": "Processo de encontrar um conjunto de substituições" }
+            ],
+            "dificil": [
+                { "palavra": "backtracking", "dica": "Método de procura de soluções" }
+            ]
+        }
+    }
+}

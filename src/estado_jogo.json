@@ -1,0 +1,10 @@
+{
+  "dica":"Classe de classes",
+  "espacos": ["_", "_", "_", "a", "_", "_", "a", "_", "_" ],
+  "jogador":"axel",
+  "letras": ["m", "e", "t", "a", "c", "l", "a", "s", "s" ],
+  "palavra":"metaclass",
+  "pontos":440,
+  "tentativas":7,
+  "tentativas_feitas": ["a" ]
+}
