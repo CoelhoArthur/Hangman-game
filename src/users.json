@@ -6,15 +6,16 @@
   {"derrotas":0, "nome":"3", "pontos":80, "vitorias":1},
   {"derrotas":0, "nome":"art", "pontos":70, "vitorias":1},
   {"derrotas":0, "nome":"testsad", "pontos":120, "vitorias":1},
-  {"derrotas":4, "nome":"Orlando", "pontos":870, "vitorias":9},
   {"derrotas":0, "nome":"Cabral", "pontos":0, "vitorias":0},
   {"derrotas":1, "nome":"Arthur", "pontos":100, "vitorias":1},
   {"derrotas":0, "nome":"gabriel", "pontos":150, "vitorias":2},
   {"derrotas":0, "nome":"bruno", "pontos":380, "vitorias":3},
-  {"derrotas":0, "nome":"axel", "pontos":440, "vitorias":8},
   {"derrotas":0, "nome":"vasco", "pontos":0, "vitorias":0},
   {"derrotas":1, "nome":"jhonata", "pontos":195, "vitorias":5},
   {"derrotas":3, "nome":"jonas", "pontos":80, "vitorias":2},
   {"derrotas":0, "nome":"halt", "pontos":300, "vitorias":2},
-  {"derrotas":0, "nome":"Axel", "pontos":470, "vitorias":9}
+  {"derrotas":0, "nome":"Axwel", "pontos":50, "vitorias":1},
+  {"derrotas":0, "nome":"axel", "pontos":1140, "vitorias":15},
+  {"derrotas":0, "nome":"Axel", "pontos":1110, "vitorias":15},
+  {"derrotas":8, "nome":"Orlando", "pontos":1140, "vitorias":10}
 ]

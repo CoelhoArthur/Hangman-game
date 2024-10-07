@@ -1,4 +1,4 @@
-:- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/4]).
+:- module(game_logic, [selecaoJogar/0, jogar/0, escolhe_palavra_aleatoria/4, adicionar_confronto/3, contar_vitorias/4]).
 :- use_module(points).
 :- use_module(db).
 :- use_module(confrontos). 
@@ -125,6 +125,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
         format('Jogador ~w venceu!\n', [Player2Name]),
         update_defeats(Player1Name),
         update_victories(Player2Name),
+        adicionar_confronto(Player1Name, Player2Name, Player2Name),
         pause_and_continue,
         show_menu
     ;   \+ member('_', Espacos1)
@@ -132,6 +133,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
         clear_screen,
         format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player1Name]),
         escreve_palavra(Espacos1),
+        adicionar_confronto(Player1Name, Player2Name, Player1Name),
         update_victories(Player1Name),
         update_defeats(Player2Name),
         pause_and_continue,
@@ -145,6 +147,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
             format('Jogador ~w venceu!\n', [Player2Name]),
             update_defeats(Player1Name),
             update_victories(Player2Name),
+            adicionar_confronto(Player1Name, Player2Name, Player2Name),
             pause_and_continue,
             show_menu
         ;   \+ member('_', NovoEspacos1)
@@ -152,6 +155,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
             format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player1Name]),
             escreve_palavra(NovoEspacos1),
             update_victories(Player1Name),
+            adicionar_confronto(Player1Name, Player2Name, Player1Name),
             update_defeats(Player2Name),
             pause_and_continue,
             show_menu
@@ -162,6 +166,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
                 format('Jogador ~w venceu!\n', [Player1Name]),
                 update_defeats(Player2Name),
                 update_victories(Player1Name),
+                adicionar_confronto(Player1Name, Player2Name, Player1Name),
                 pause_and_continue,
                 show_menu
             ;   \+ member('_', Espacos2)
@@ -169,6 +174,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
                 format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player2Name]),
                 escreve_palavra(Espacos2),
                 update_victories(Player2Name),
+                adicionar_confronto(Player1Name, Player2Name, Player2Name),
                 update_defeats(Player1Name),
                 pause_and_continue,
                 show_menu
@@ -181,6 +187,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
                     format('Jogador ~w venceu!\n', [Player1Name]),
                     update_defeats(Player2Name),
                     update_victories(Player1Name),
+                    adicionar_confronto(Player1Name, Player2Name, Player1Name),
                     pause_and_continue,
                     show_menu
                 ;   \+ member('_', NovoEspacos2)
@@ -188,6 +195,7 @@ jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Te
                     format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player2Name]),
                     escreve_palavra(NovoEspacos2),
                     update_victories(Player2Name),
+                    adicionar_confronto(Player1Name, Player2Name, Player2Name),
                     update_defeats(Player1Name),
                     pause_and_continue,
                     show_menu
@@ -316,6 +324,8 @@ jogar_turno(PlayerName, Letras, Espacos, Tentativas, TentativasFeitas, Points, P
         )
     ).
 
+
+
 % Função que atualiza a palavra com a letra correta
 atualiza_palavra(Letras, Espacos, Letra, NovaEspacos) :-
     maplist(replace_letter(Letra), Letras, Espacos, NovaEspacos).
@@ -324,6 +334,13 @@ replace_letter(Letra, Letra, '_', Letra) :- !.  % Substitui o espaço vazio pela
 replace_letter(_, _, Espaco, Espaco).          % Mantém as letras já reveladas
 
 
+% Função principal para atualizar as vitórias no final de um jogo
+update_victories(Jogador1, Jogador2, Vencedor) :-
+    (   Vencedor == 'none'
+    ->  writeln('Empate. O JSON não será atualizado.')
+    ;   atualizar_confronto(Jogador1, Jogador2, Vencedor),
+        format('Confronto atualizado: ~w vs ~w, Vencedor: ~w~n', [Jogador1, Jogador2, Vencedor])
+    ).
 
 % Escolhe uma palavra aleatória com base no tema e dificuldade e retorna a dica associada
 escolhe_palavra_aleatoria(Tema, Dificuldade, Palavra, Dica) :-
@@ -440,6 +457,11 @@ continuar_jogo(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, P
         jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
     ).
 
+
+
+
+
+
 processar_chute_palavra(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica) :-
     writeln('Digite a palavra completa:'),
     read_line_to_string(user_input, ChutePalavra),
@@ -497,7 +519,7 @@ processar_sidequest(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palav
         sleep(2),
         jogar_forca(Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, PlayerName, Dica)
     ).
-     
+
 % Escreve a palavra na tela
 escreve_palavra([]) :- nl.
 escreve_palavra([H|T]) :-
@@ -567,8 +589,31 @@ pause_and_continue :-
     write('Pressione ENTER para continuar...'),
     get_char(_).
 
-%jogarMultiplayer :-
-    % Placeholder para implementação futura do modo multiplayer
-    write('Modo multiplayer em desenvolvimento.\n'),
-    pause_and_continue,
-    show_menu.
+
+% Função para adicionar um novo confronto ao JSON
+adicionar_confronto(Jogador1, Jogador2, Vencedor) :-
+    % Carrega os confrontos existentes
+    read_json('confrontos.json', Confrontos),
+
+    % Determina as vitórias baseadas no vencedor
+    (   Vencedor == Jogador1
+    ->  NovoConfronto = json([
+            jogador1-Jogador1,
+            jogador2-Jogador2,
+            vitorias_jogador1-1,
+            vitorias_jogador2-0
+        ])
+    ;   NovoConfronto = json([
+            jogador1-Jogador1,
+            jogador2-Jogador2,
+            vitorias_jogador1-0,
+            vitorias_jogador2-1
+        ])
+    ),
+
+    % Adiciona o novo confronto à lista existente
+    append(Confrontos, [NovoConfronto], NovosConfrontos),
+
+    % Salva os confrontos atualizados no arquivo JSON
+    write_json('confrontos.json', NovosConfrontos),
+    write("Confronto adicionado com sucesso!\n").

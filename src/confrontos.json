@@ -1,15 +1,32 @@
 [
-    {
-        "Jogador1": "Axel",
-        "Jogador2": "Arthur",
-        "VitoriasJogador1": 1,
-        "VitoriasJogador2": 0
-    },
-    {
-        "Jogador1": "Axel",
-        "Jogador2": "Orlando",
-        "VitoriasJogador1": 2,
-        "VitoriasJogador2": 1
-    }
+  {
+    "jogador1":"Axel",
+    "jogador2":"Arthur",
+    "vitorias_jogador1":1,
+    "vitorias_jogador2":0
+  },
+  {
+    "jogador1":"Axel",
+    "jogador2":"Orlando",
+    "vitorias_jogador1":0,
+    "vitorias_jogador2":1
+  },
+  {
+    "jogador1":"Axel",
+    "jogador2":"Orlando",
+    "vitorias_jogador1":1,
+    "vitorias_jogador2":0
+  },
+  {
+    "jogador1":"Axel",
+    "jogador2":"Orlando",
+    "vitorias_jogador1":1,
+    "vitorias_jogador2":0
+  },
+  {
+    "jogador1":"Axel",
+    "jogador2":"Orlando",
+    "vitorias_jogador1":1,
+    "vitorias_jogador2":0
+  }
 ]
-

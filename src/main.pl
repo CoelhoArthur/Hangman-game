@@ -2,6 +2,7 @@
 :- [db].
 :- [points].
 :- [bot_logic].
+:- [historico_confrontos].
 
 % Função principal para iniciar o menu
 main :- 
@@ -53,6 +54,7 @@ show_menu :-
 handle_menu_option("1") :- 
     selecaoJogar.  % Chama a função para começar o jogo
 handle_menu_option("2") :- 
+    obter_e_somar_vitorias,
     write('Você escolheu: Histórico de vitórias/derrotas.\n'),
     pause_and_continue,
     show_menu.
