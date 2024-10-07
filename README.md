@@ -7,13 +7,16 @@ Grupo:
 - Orlando Vírginio Penha Júnior
 
 ## COMO EXECUTAR
-1° Ao fazer fazer o push do repositório, entre na pasta *Hangman-game/src* e execute o comando: 
+1° Ao fazer fazer o push do repositório, entre na pasta *Hangman-game* e execute os comandos: 
 
-                        `$ swipl main.pl`
+```
+$ sudo apt-get update
+$ sudo apt-get install swi-prolog
+```
 
-2° Em seguida, digite:
+3° Após isso, entre na pasta *Hangman-game/src* e execute o comando:   `swipl main.pl`
 
-                       ` ? - main.`
+2° Em seguida, digite:   ` ? - main.`
 
 E assim, dará ínicio ao jogo.
 
@@ -21,7 +24,7 @@ E assim, dará ínicio ao jogo.
 - Será possível jogar nos modos:
 > Singleplayer: Onde o jogador terá 7 tentativas de chutar uma letra da palavra ou poderá chutar a palavra toda.
 
-> Multiplayer: Onde 2 jogadores se enfrentarão e dividirão a mesma tela.
+> Multiplayer: Onde 2 jogadores se enfrentarão, terão a mesma palavra, mas cada um terá suas tentativas e letras já tentadas.
 
 > Jogador vs Bot: Onde o jogador disputará a partida contra um bot apenas.
 
@@ -29,6 +32,6 @@ E assim, dará ínicio ao jogo.
 
 - O jogo singlePlayer poderá ser pausado a qualquer instante e retomado posteriormente.
 
-- No jogo multiplayer, os jogadores compartilharão um mesmo boneco, a mesma palavra, e as mesmas letras erradas. Ao final da partida, quando um dos jogadores errar a 7° vez, o confronto ficará salvo com o ganhador e o perdedor.
+- No jogo multiplayer, os jogadores compartilharão a mesma palavra. Ao final da partida, quando um dos jogadores errar a 7° vez, o confronto ficará salvo com o ganhador e o perdedor.
 
-- Será possível ver a classificação dos jogadores e exibir o histórico de um jogador específico com suas vitórias derrotas e pontos feitos.
+- Será possível ver a classificação dos jogadores e exibir a quantidade de vitórias e derrotas de um jogador específico contra o outro.
