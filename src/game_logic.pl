@@ -76,24 +76,32 @@ jogar :-
         jogar_forca(Letras, Espacos, 7, [], 0, Palavra, PlayerName, Dica)
     ).
 
-% Função para iniciar o jogo multiplayer
+% Função para iniciar o jogo multiplayer com bonecos e tentativas individuais
 jogarMultiplayer :-
     write('Digite o nome do Jogador 1: '),
     read_line_to_string(user_input, Player1Name),
     (   find_user_by_name(Player1Name, UserData1)
-    ->  Player1Points = UserData1.pontos
+    ->  Player1Points = UserData1.pontos,
+        Player1Victories = UserData1.vitorias,
+        Player1Defeats = UserData1.derrotas
     ;   write('Usuário não encontrado. Realizando cadastro para Jogador 1...\n'),
         add_user(Player1Name),
-        Player1Points = 0
+        Player1Points = 0,
+        Player1Victories = 0,
+        Player1Defeats = 0
     ),
-    
+
     write('Digite o nome do Jogador 2: '),
     read_line_to_string(user_input, Player2Name),
     (   find_user_by_name(Player2Name, UserData2)
-    ->  Player2Points = UserData2.pontos
+    ->  Player2Points = UserData2.pontos,
+        Player2Victories = UserData2.vitorias,
+        Player2Defeats = UserData2.derrotas
     ;   write('Usuário não encontrado. Realizando cadastro para Jogador 2...\n'),
         add_user(Player2Name),
-        Player2Points = 0
+        Player2Points = 0,
+        Player2Victories = 0,
+        Player2Defeats = 0
     ),
 
     seleciona_tema(Tema),
@@ -101,52 +109,162 @@ jogarMultiplayer :-
 
     escolhe_palavra_aleatoria(Tema, Dificuldade, Palavra, Dica),
     atom_chars(Palavra, Letras),
-    inicializa_forca(Letras, Espacos),
+    inicializa_forca(Letras, Espacos1),
+    inicializa_forca(Letras, Espacos2),
 
-    jogar_forca_multiplayer(Letras, Espacos, 7, [], Player1Points, Palavra, Player1Name, Dica, Player2Points, Player2Name).
+    TentativasIniciais = 7,
+    jogar_forca_multiplayer(Letras, Espacos1, Espacos2, TentativasIniciais, TentativasIniciais, [], [], Player1Name, Player2Name, Dica).
 
-% Função para jogar em modo multiplayer
-jogar_forca_multiplayer(Letras, Espacos, Tentativas, TentativasFeitas, Points1, Palavra, Player1Name, Dica, Points2, Player2Name) :-
-    jogar_turno(Player1Name, Letras, Espacos, Tentativas, TentativasFeitas, Points1, Palavra, Dica, Player2Points, Player2Name, NovaTentativas1, NovaTentativasFeitas1, NovaEspacos1, NovaPoints1),
-
-    (   \+ member('_', NovaEspacos1)
-    ->  clear_screen,
-        NewPoints1 is Points1 + 10,  % Incrementa a pontuação do jogador 1
-        format('Parabéns, ~w! Você ganhou! +10 pontos!\n', [Player1Name]),
-        sleep(2),  % Aguarda 2 segundos
-        write('A palavra era: '), writeln(Palavra),
-        update_victories(Player1Name),
-        adicionar_confronto(Player1Name, Player2Name, 1, 0), % Salva o confronto
-        show_menu
-    ;   NovaTentativas1 = 0
-    ->  clear_screen,
-        format('~w, você perdeu!\n', [Player1Name]),
-        write('A palavra era: '), writeln(Palavra),
+% Loop principal do jogo multiplayer com atualização de pontos
+jogar_forca_multiplayer(Letras, Espacos1, Espacos2, Tentativas1, Tentativas2, Tentadas1, Tentadas2, Player1Name, Player2Name, Dica) :-
+    % Verifica condições de término antes do turno do Jogador 1
+    (   Tentativas1 =< 0
+    ->  % Jogador 1 perdeu
+        clear_screen,
+        format('Jogador ~w perdeu! Tentativas esgotadas.\n', [Player1Name]),
+        format('Jogador ~w venceu!\n', [Player2Name]),
         update_defeats(Player1Name),
+        update_victories(Player2Name),
+        pause_and_continue,
         show_menu
-    ;   sleep(2), clear_screen,
-        jogar_turno(Player2Name, Letras, NovaEspacos1, NovaTentativas1, NovaTentativasFeitas1, Points2, Palavra, Dica, NovaPoints2, Player1Name, NovaTentativas2, NovaTentativasFeitas2, NovaEspacos2, NovaPoints2),
-
-        (   \+ member('_', NovaEspacos2)
+    ;   \+ member('_', Espacos1)
+    ->  % Jogador 1 ganhou
+        clear_screen,
+        format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player1Name]),
+        escreve_palavra(Espacos1),
+        update_victories(Player1Name),
+        update_defeats(Player2Name),
+        pause_and_continue,
+        show_menu
+    ;   % Turno do Jogador 1
+        turno_jogador_multiplayer(Letras, Espacos1, Tentativas1, Tentadas1, Player1Name, Dica, NovoEspacos1, NovoTentativas1, NovoTentadas1),
+        % Verifica condições de término após o turno do Jogador 1
+        (   NovoTentativas1 =< 0
         ->  clear_screen,
-            NewPoints2 is Points2 + 10,  % Incrementa a pontuação do jogador 2
-            format('Parabéns, ~w! Você ganhou! +10 pontos!\n', [Player2Name]),
-            sleep(2),  % Aguarda 2 segundos
-            write('A palavra era: '), writeln(Palavra),
+            format('Jogador ~w perdeu! Tentativas esgotadas.\n', [Player1Name]),
+            format('Jogador ~w venceu!\n', [Player2Name]),
+            update_defeats(Player1Name),
             update_victories(Player2Name),
-            adicionar_confronto(Player1Name, Player2Name, 0, 1), % Salva o confronto
+            pause_and_continue,
             show_menu
-        ;   NovaTentativas2 = 0
+        ;   \+ member('_', NovoEspacos1)
         ->  clear_screen,
-            format('~w, você perdeu!\n', [Player2Name]),
-            write('A palavra era: '), writeln(Palavra),
+            format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player1Name]),
+            escreve_palavra(NovoEspacos1),
+            update_victories(Player1Name),
             update_defeats(Player2Name),
+            pause_and_continue,
             show_menu
-        ;   sleep(2), clear_screen,
-            jogar_forca_multiplayer(Letras, NovaEspacos2, NovaTentativas2, NovaTentativasFeitas2, Points1, Palavra, Player1Name, Dica, Points2, Player2Name)
+        ;   % Verifica condições de término antes do turno do Jogador 2
+            (   Tentativas2 =< 0
+            ->  clear_screen,
+                format('Jogador ~w perdeu! Tentativas esgotadas.\n', [Player2Name]),
+                format('Jogador ~w venceu!\n', [Player1Name]),
+                update_defeats(Player2Name),
+                update_victories(Player1Name),
+                pause_and_continue,
+                show_menu
+            ;   \+ member('_', Espacos2)
+            ->  clear_screen,
+                format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player2Name]),
+                escreve_palavra(Espacos2),
+                update_victories(Player2Name),
+                update_defeats(Player1Name),
+                pause_and_continue,
+                show_menu
+            ;   % Turno do Jogador 2
+                turno_jogador_multiplayer(Letras, Espacos2, Tentativas2, Tentadas2, Player2Name, Dica, NovoEspacos2, NovoTentativas2, NovoTentadas2),
+                % Verifica condições de término após o turno do Jogador 2
+                (   NovoTentativas2 =< 0
+                ->  clear_screen,
+                    format('Jogador ~w perdeu! Tentativas esgotadas.\n', [Player2Name]),
+                    format('Jogador ~w venceu!\n', [Player1Name]),
+                    update_defeats(Player2Name),
+                    update_victories(Player1Name),
+                    pause_and_continue,
+                    show_menu
+                ;   \+ member('_', NovoEspacos2)
+                ->  clear_screen,
+                    format('Parabéns, ~w! Você ganhou! A palavra é:\n', [Player2Name]),
+                    escreve_palavra(NovoEspacos2),
+                    update_victories(Player2Name),
+                    update_defeats(Player1Name),
+                    pause_and_continue,
+                    show_menu
+                ;   % Próxima rodada
+                    jogar_forca_multiplayer(Letras, NovoEspacos1, NovoEspacos2, NovoTentativas1, NovoTentativas2, NovoTentadas1, NovoTentadas2, Player1Name, Player2Name, Dica)
+                )
+            )
         )
     ).
 
+% Função que representa o turno de um jogador no multiplayer com atualização de pontos
+turno_jogador_multiplayer(Letras, Espacos, Tentativas, Tentadas, PlayerName, Dica, NovoEspacos, NovoTentativas, NovoTentadas) :-
+    % Obtém a pontuação atual do jogador
+    find_user_by_name(PlayerName, UserData),
+    CurrentPoints = UserData.pontos,
+    clear_screen,
+    format('Turno do Jogador: ~w\n', [PlayerName]),
+    format('Dica: ~w\n', [Dica]),
+    draw_hangman(Tentativas),
+    writeln('Palavra atual:'),
+    escreve_palavra(Espacos),
+    format('Tentativas restantes: ~w\n', [Tentativas]),
+    writeln('Letras já tentadas:'),
+    escreve_palavra(Tentadas),
+    writeln('Você deseja tentar "chutar" a palavra completa? (s/n)'),
+    read_line_to_string(user_input, Chutar),
+    (   Chutar == "s"
+    ->  % Jogador opta por chutar a palavra completa
+        writeln('Digite a palavra completa:'),
+        read_line_to_string(user_input, ChutePalavra),
+        atom_chars(ChutePalavra, ChuteLista),
+        (   ChuteLista == Letras
+        ->  % Jogador acertou a palavra
+            clear_screen,
+            format('Parabéns, ~w! Você acertou a palavra completa!\n', [PlayerName]),
+            NovoEspacos = Letras,
+            NovoTentativas = Tentativas,
+            NovoTentadas = Tentadas,
+            % Atualiza pontos e vitórias
+            add_points(CurrentPoints, 50, _, PlayerName),
+            pause_and_continue
+        ;   % Jogador errou a palavra
+            writeln('Palavra incorreta! Você perde uma tentativa e 10 pontos.'),
+            NovoTentativas is Tentativas - 1,
+            NovoEspacos = Espacos,
+            NovoTentadas = Tentadas,
+            subtract_points(CurrentPoints, 10, _, PlayerName),
+            pause_and_continue
+        )
+    ;   % Jogador opta por chutar uma letra
+        writeln('Digite uma letra:'),
+        read_line_to_string(user_input, ChuteLetra),
+        string_lower(ChuteLetra, ChuteLower),
+        string_chars(ChuteLower, [Letra]),
+        (   member(Letra, Tentadas)
+        ->  writeln('Você já tentou essa letra. Tente novamente.'),
+            pause_and_continue,
+            turno_jogador_multiplayer(Letras, Espacos, Tentativas, Tentadas, PlayerName, Dica, NovoEspacos, NovoTentativas, NovoTentadas)
+        ;   (   member(Letra, Letras)
+            ->  % Jogador acertou a letra
+                writeln('Acertou! Você ganhou 30 pontos.'),
+                atualiza_palavra(Letras, Espacos, Letra, AtualizadoEspacos),
+                NovoTentadas = [Letra|Tentadas],
+                NovoTentativas = Tentativas,
+                NovoEspacos = AtualizadoEspacos,
+                add_points(CurrentPoints, 30, _, PlayerName),
+                pause_and_continue
+            ;   % Jogador errou a letra
+                writeln('Letra incorreta! Você perde uma tentativa e 10 pontos.'),
+                NovoTentativas is Tentativas - 1,
+                NovoTentadas = [Letra|Tentadas],
+                NovoEspacos = Espacos,
+                subtract_points(CurrentPoints, 10, _, PlayerName),
+                pause_and_continue
+            )
+        )
+    ).
 
 % Função para um jogador jogar sua vez
 jogar_turno(PlayerName, Letras, Espacos, Tentativas, TentativasFeitas, Points, Palavra, Dica, OpponentPoints, OpponentName, NovaTentativas, NovaTentativasFeitas, NovaEspacos, NovaPoints) :-
